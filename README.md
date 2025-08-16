@@ -1,6 +1,6 @@
-# PolySwap - ERC-1155 to ERC-20 Converter
+# PolySwap - Prediction Market Trading Platform
 
-A smart contract system for wrapping ERC-1155 tokens into ERC-20 tokens on Polygon, enabling better liquidity and compatibility with DeFi protocols.
+A Uniswap V4 hook-based AMM and swapping interface for prediction market positions, with integrated ERC-1155 to ERC-20 wrapping for enhanced liquidity and DeFi compatibility.
 
 ## 🚀 Deployed Contracts
 
@@ -22,119 +22,179 @@ A smart contract system for wrapping ERC-1155 tokens into ERC-20 tokens on Polyg
 
 ## 📋 Overview
 
-This project provides a factory contract that:
-1. Accepts ERC-1155 tokens and wraps them into ERC-20 tokens
-2. Creates deterministic ERC-20 wrapper addresses using CREATE2
-3. Allows unwrapping back to original ERC-1155 tokens
-4. Supports batch operations for efficiency
+PolySwap is a complete prediction market trading solution that:
 
-## 🔧 How It Works
+### Core Features
+1. **Uniswap V4 Hook AMM** - Custom constant-sum market maker for prediction markets
+2. **Position Trading Interface** - Swap between YES/NO positions with real-time pricing
+3. **Portfolio Tracking** - View and manage prediction market positions
+4. **ERC-1155 to ERC-20 Bridge** - Wrap Polymarket positions for DeFi compatibility
 
-### Wrapping Process
-1. ERC-1155 tokens are sent to the factory contract
-2. Factory creates/uses a deterministic ERC-20 wrapper contract
-3. ERC-20 tokens are minted to the sender
-4. Original ERC-1155s are held by the factory
+### Why PolySwap?
+- **Enhanced Liquidity** - Create liquid markets for prediction outcomes
+- **DeFi Integration** - Use wrapped positions in lending, yield farming, etc.
+- **Efficient Trading** - Swap directly between YES/NO positions
+- **Professional Interface** - Track positions, P&L, and market probabilities
 
-### Unwrapping Process
-1. User calls `unwrap()` with their ERC-20 tokens
-2. ERC-20 tokens are burned
-3. Original ERC-1155 tokens are returned to the user
+## 🔧 Architecture
 
-## 🛠 Technical Details
+### 1. Prediction Market Trading (Uniswap V4 Hook)
+- **Constant Sum AMM** - Ensures YES + NO = 1 for proper probability pricing
+- **Hook-based Architecture** - Leverages V4's customizable liquidity pools
+- **Automatic Rebalancing** - Maintains market efficiency
 
-- **Solidity Version**: 0.6.12
-- **License**: LGPL-3.0-or-later
-- **Deployment Method**: CREATE2 via SingletonFactory
-- **Gas Optimization**: Minimal proxy pattern (44 bytes runtime)
-- **OpenZeppelin**: v3.4.0
+### 2. Token Wrapping System
+- **ERC-1155 → ERC-20** - Converts Polymarket positions to fungible tokens
+- **Deterministic Addresses** - Same wrapper for same market across all users
+- **Reversible Process** - Unwrap back to original positions anytime
+
+### 3. Web Interface
+- **Portfolio Dashboard** - Track YES/NO positions and probabilities
+- **Swap Interface** - Trade between outcomes with live pricing
+- **Wallet Integration** - Seamless connection via RainbowKit
+
+## 🛠 Technical Stack
+
+### Smart Contracts
+- **Uniswap V4 Hooks** - Custom AMM logic for prediction markets
+- **Solidity 0.8.26** - V4 hook contracts
+- **Solidity 0.6.12** - ERC-1155 wrapper factory
+- **CREATE2 Deployment** - Deterministic contract addresses
+- **OpenZeppelin** - Battle-tested token standards
+
+### Frontend
+- **React + Vite** - Fast, modern build tooling
+- **RainbowKit** - Web3 wallet connection
+- **Wagmi + Viem** - Ethereum interactions
+- **TailwindCSS** - Responsive dark-theme UI
 
 ## 📁 Project Structure
 
 ```
 polyswap/
-├── 1155_converter/
-│   └── 1155-to-20-master/
-│       ├── contracts/           # Smart contracts
-│       ├── build/              # Compiled contracts
-│       ├── test/               # Test suite
-│       ├── migrations/         # Deployment scripts
-│       └── scripts/            # Utility scripts
-└── README.md
+├── gui/                         # Web interface
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── PredictionMarket.jsx  # Position tracker
+│   │   │   └── SwapV2.jsx           # Trading interface
+│   │   └── config/
+│   └── vercel.json             # Deployment config
+├── prediction-market-hook/      # Uniswap V4 AMM
+│   └── v4-constant-sum-main/
+│       ├── src/                # Hook contracts
+│       └── test/               # Hook tests
+├── 1155_converter/             # Token wrapper
+│   └── contracts/              # Factory contracts
+├── transfer/                   # Gnosis Safe tools
+└── scripts/                    # Wrapping utilities
 ```
 
-## 🔑 Environment Setup
+## 🚀 Quick Start
 
-Create a `.env` file with:
+### Use the Live App
+Visit the deployed application to trade prediction market positions:
+```
+https://polyswap.vercel.app
+```
+
+### Run Locally
 ```bash
-PRIVATE_KEY="your_private_key"
-METAMASK_API_KEY="your_metamask_developer_api_key"
-POLYGONSCAN_API_KEY="your_polygonscan_api_key"
-GAS_PRICE="30"  # in gwei for Polygon
-```
+# Clone the repository
+git clone https://github.com/piraterobot0/polyswap.git
+cd polyswap
 
-## 📚 Usage Examples
-
-### For Smart Contract Integration
-```solidity
-// Send ERC-1155 to factory to wrap
-IERC1155(token).safeTransferFrom(
-    msg.sender,
-    FACTORY_ADDRESS,
-    tokenId,
-    amount,
-    tokenMetadata  // 65 bytes: name(32) + symbol(32) + decimals(1)
-);
-
-// Unwrap back to ERC-1155
-factory.unwrap(
-    multiToken,
-    tokenId,
-    amount,
-    recipient,
-    tokenMetadata
-);
-```
-
-### Token Metadata Format
-- Bytes 0-31: Token name (32 bytes)
-- Bytes 32-63: Token symbol (32 bytes)  
-- Byte 64: Decimals (1 byte)
-
-## ⚠️ Important: Decimal Precision
-
-### The 1:1 Mapping
-The factory performs a **direct 1:1 mapping** between ERC-1155 and ERC-20 tokens:
-- 1 ERC-1155 unit = 1 smallest unit (wei) of ERC-20
-- With 18 decimals: 1 ERC-1155 = 0.000000000000000001 ERC-20
-
-### Example with Real Numbers
-- **ERC-1155 Balance**: 2,000,001 units (no decimals)
-- **ERC-20 with 18 decimals**: 0.000000000002000001 tokens
-- **ERC-20 with 6 decimals**: 0.002000001 tokens  
-- **ERC-20 with 0 decimals**: 2,000,001 tokens
-
-### GUI Display Recommendation
-For user interfaces, we recommend:
-1. **Keep 18 decimals** for maximum compatibility with DeFi
-2. **Scale display** by multiplying by 10^12 for readability
-3. **Show as**: "2.000001 M-wPOSI" (millions of base units)
-4. Or use custom display logic based on your use case
-
-### Quick Token Reference
-Add these tokens to MetaMask on Polygon Network:
-```
-YES Token: 0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1
-NO Token:  0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5
-```
-
-## 🧪 Testing
-
-```bash
-cd 1155_converter/1155-to-20-master
+# Install and run the GUI
+cd gui
 npm install
+npm run dev
+```
+
+### Environment Setup (for scripts)
+```bash
+# Create .env file for wrapping/transfer scripts
+PRIVATE_KEY="your_private_key"
+POLYGONSCAN_API_KEY="your_api_key"
+```
+
+## 💱 Trading Prediction Markets
+
+### Current Market
+**"Will Google have the best AI model by September 2025?"**
+- Trade YES tokens if you believe Google will lead
+- Trade NO tokens if you believe others will lead
+- Market resolves September 30, 2025
+
+### How to Trade
+1. **Connect Wallet** - Use MetaMask or any Web3 wallet
+2. **View Positions** - See your YES/NO token balances
+3. **Swap Tokens** - Trade between outcomes at market prices
+4. **Track Performance** - Monitor position values and probabilities
+
+### Wrapping Polymarket Positions
+```javascript
+// Use the wrapper factory to convert ERC-1155 to ERC-20
+node scripts/wrap-tokens.js
+
+// Token addresses for this market:
+YES: 0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1
+NO:  0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5
+```
+
+## 🏗️ Uniswap V4 Hook Development
+
+### Hook Architecture
+The prediction market hook implements a constant-sum AMM where:
+- YES + NO prices always equal 1
+- Provides guaranteed liquidity at all price points
+- No impermanent loss for LPs in binary markets
+
+### Deploy Your Own Market
+```solidity
+// Deploy a new prediction market hook
+PredictionMarketHook hook = new PredictionMarketHook(
+    poolManager,
+    "Will BTC hit $100k in 2025?"
+);
+
+// Initialize the pool with equal liquidity
+hook.initializePool(token0, token1, initialLiquidity);
+```
+
+### Hook Features
+- **Constant Sum Pricing** - Maintains probability constraint
+- **Auto-rebalancing** - Adjusts liquidity distribution
+- **Fee Collection** - Configurable LP fees
+- **Resolution Logic** - Built-in market settlement
+
+## 🧪 Development & Testing
+
+### Run Tests
+```bash
+# Test V4 hooks
+cd prediction-market-hook/v4-constant-sum-main
+forge test
+
+# Test wrapper contracts
+cd 1155_converter/1155-to-20-master
 npm test
 ```
+
+### Local Development
+```bash
+# Start local Anvil fork
+anvil --fork-url https://polygon-rpc.com
+
+# Deploy hook locally
+forge script script/DeployPredictionMarket.s.sol --rpc-url localhost
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Areas of interest:
+- Additional V4 hook strategies (CPMM, dynamic fees)
+- Multi-outcome markets (not just binary)
+- Advanced trading features (limit orders, stop loss)
+- Integration with other prediction platforms
 
 ## 📄 License
 
@@ -142,6 +202,7 @@ LGPL-3.0-or-later
 
 ## 🔗 Resources
 
-- [Original Gnosis Implementation](https://github.com/gnosis/1155-to-20)
+- [Uniswap V4 Documentation](https://docs.uniswap.org/contracts/v4/overview)
+- [Polymarket](https://polymarket.com)
 - [EIP-1155 Standard](https://eips.ethereum.org/EIPS/eip-1155)
-- [EIP-2470 SingletonFactory](https://eips.ethereum.org/EIPS/eip-2470)
+- [Original Gnosis Wrapper](https://github.com/gnosis/1155-to-20)
