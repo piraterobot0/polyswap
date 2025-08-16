@@ -1,0 +1,69 @@
+{
+  "networks": {
+    "ethereum": {
+      "chainId": 1,
+      "name": "Ethereum Mainnet",
+      "currency": "ETH",
+      "explorer": "https://etherscan.io",
+      "warning": "⚠️ MAINNET - Real money at risk! Hot wallet limit: $30"
+    },
+    "sepolia": {
+      "chainId": 11155111,
+      "name": "Sepolia Testnet",
+      "currency": "SepoliaETH",
+      "explorer": "https://sepolia.etherscan.io",
+      "faucet": "https://sepoliafaucet.com",
+      "recommended": true
+    },
+    "goerli": {
+      "chainId": 5,
+      "name": "Goerli Testnet",
+      "currency": "GoerliETH",
+      "explorer": "https://goerli.etherscan.io",
+      "faucet": "https://goerlifaucet.com"
+    },
+    "polygon": {
+      "chainId": 137,
+      "name": "Polygon Mainnet",
+      "currency": "MATIC",
+      "explorer": "https://polygonscan.com",
+      "warning": "⚠️ MAINNET - Real money at risk! Hot wallet limit: $30"
+    },
+    "mumbai": {
+      "chainId": 80001,
+      "name": "Polygon Mumbai Testnet",
+      "currency": "MATIC",
+      "explorer": "https://mumbai.polygonscan.com",
+      "faucet": "https://faucet.polygon.technology"
+    },
+    "arbitrum": {
+      "chainId": 42161,
+      "name": "Arbitrum One",
+      "currency": "ETH",
+      "explorer": "https://arbiscan.io",
+      "warning": "⚠️ MAINNET - Real money at risk! Hot wallet limit: $30"
+    },
+    "bsc": {
+      "chainId": 56,
+      "name": "BNB Smart Chain",
+      "currency": "BNB",
+      "explorer": "https://bscscan.com",
+      "warning": "⚠️ MAINNET - Real money at risk! Hot wallet limit: $30"
+    },
+    "bsc_testnet": {
+      "chainId": 97,
+      "name": "BNB Smart Chain Testnet",
+      "currency": "tBNB",
+      "explorer": "https://testnet.bscscan.com",
+      "faucet": "https://testnet.binance.org/faucet-smart"
+    },
+    "localhost": {
+      "chainId": 31337,
+      "name": "Local Development",
+      "currency": "ETH",
+      "explorer": null,
+      "rpc": "http://localhost:8545"
+    }
+  },
+  "default": "sepolia"
+}

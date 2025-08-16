@@ -1,0 +1,62 @@
+{
+  "rpcs": {
+    "ethereum": [
+      "https://eth.llamarpc.com",
+      "https://rpc.ankr.com/eth",
+      "https://eth-mainnet.public.blastapi.io",
+      "https://ethereum.publicnode.com"
+    ],
+    "sepolia": [
+      "https://rpc.sepolia.org",
+      "https://sepolia.gateway.tenderly.co",
+      "https://ethereum-sepolia.blockpi.network/v1/rpc/public",
+      "https://rpc2.sepolia.org"
+    ],
+    "goerli": [
+      "https://goerli.blockpi.network/v1/rpc/public",
+      "https://eth-goerli.public.blastapi.io",
+      "https://goerli.gateway.tenderly.co"
+    ],
+    "polygon": [
+      "https://polygon-rpc.com",
+      "https://polygon.llamarpc.com",
+      "https://rpc-mainnet.maticvigil.com",
+      "https://polygon-mainnet.public.blastapi.io",
+      "https://polygon.blockpi.network/v1/rpc/public",
+      "https://rpc.ankr.com/polygon"
+    ],
+    "mumbai": [
+      "https://rpc-mumbai.maticvigil.com",
+      "https://polygon-mumbai.blockpi.network/v1/rpc/public",
+      "https://polygon-testnet.public.blastapi.io",
+      "https://rpc.ankr.com/polygon_mumbai"
+    ],
+    "arbitrum": [
+      "https://arb1.arbitrum.io/rpc",
+      "https://arbitrum.llamarpc.com",
+      "https://rpc.ankr.com/arbitrum",
+      "https://arbitrum-mainnet.public.blastapi.io"
+    ],
+    "bsc": [
+      "https://bsc-dataseed.binance.org",
+      "https://bsc-dataseed1.binance.org",
+      "https://bsc-dataseed2.binance.org",
+      "https://bsc.publicnode.com",
+      "https://rpc.ankr.com/bsc"
+    ],
+    "bsc_testnet": [
+      "https://data-seed-prebsc-1-s1.binance.org:8545",
+      "https://data-seed-prebsc-2-s1.binance.org:8545",
+      "https://bsc-testnet.public.blastapi.io"
+    ],
+    "localhost": [
+      "http://localhost:8545",
+      "http://127.0.0.1:8545"
+    ]
+  },
+  "notes": {
+    "reliability": "Public RPCs may have rate limits or occasional downtime. For production, use private RPCs from Alchemy/Infura.",
+    "fallback": "The system will try RPCs in order until one works.",
+    "priority": "Private RPCs from .env are tried first, then public RPCs as fallback."
+  }
+}

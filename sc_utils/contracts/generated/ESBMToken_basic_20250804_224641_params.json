@@ -1,0 +1,15 @@
+{
+  "contract_name": "BasicERC20",
+  "constructor_args": {
+    "name": "Everyone Sucks But Me",
+    "symbol": "ESBM",
+    "decimals": 18,
+    "initialSupply": 1000000
+  },
+  "template": "basic",
+  "features": [
+    "Fixed Supply",
+    "No Owner Functions"
+  ],
+  "generated_at": "2025-08-04T22:46:41.586407"
+}
