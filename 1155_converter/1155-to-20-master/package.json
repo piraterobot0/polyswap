@@ -28,10 +28,11 @@
   },
   "homepage": "https://github.com/gnosis/1155-to-20#readme",
   "devDependencies": {
-    "1155-to-20-helper": "git@github.com:davidalbela/1155-to-20-helper",
     "@gnosis.pm/conditional-tokens-contracts": "^1.0.1",
     "@nomiclabs/buidler": "^1.4.8",
     "@truffle/hdwallet-provider": "^1.2.6",
+    "1155-to-20-helper": "git@github.com:davidalbela/1155-to-20-helper",
+    "axios": "^1.11.0",
     "chai": "^4.2.0",
     "chai-bn": "^0.2.1",
     "dotenv": "^8.2.0",
@@ -40,6 +41,7 @@
     "truffle-plugin-verify": "^0.5.7"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.4.0"
+    "@openzeppelin/contracts": "^3.4.0",
+    "web3": "^4.16.0"
   }
 }

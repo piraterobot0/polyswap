@@ -1,0 +1,16 @@
+{
+  "name": "erc1155-transfer",
+  "version": "1.0.0",
+  "description": "ERC-1155 token transfer utility for Polygon",
+  "main": "transfer-1155.js",
+  "scripts": {
+    "transfer": "node transfer-1155.js"
+  },
+  "dependencies": {
+    "@safe-global/safe-core-sdk": "^3.3.5",
+    "@safe-global/safe-ethers-lib": "^1.9.4",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.8.0",
+    "web3": "^1.10.0"
+  }
+}

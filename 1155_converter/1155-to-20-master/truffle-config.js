@@ -15,8 +15,9 @@ const privateKeys = privateKey ? [privateKey] : null;
 if (!privateKeys) {
   console.log('PRIVATE_KEY not set');
 }
-const infuraProjectId = process.env.INFURA_PROJECT_ID ||
-  (console.log('INFURA_PROJECT_ID not set'), '');
+// Support both MetaMask Developer API key and legacy Infura project ID
+const apiKey = process.env.METAMASK_API_KEY || process.env.INFURA_PROJECT_ID ||
+  (console.log('METAMASK_API_KEY or INFURA_PROJECT_ID not set'), '');
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY ||
   (console.log('ETHERSCAN_API_KEY not set'), '');
 
@@ -27,11 +28,12 @@ if (process.env.GAS_PRICE != null) {
 }
 
 const networksInfo = [
-  { name: 'mainnet', id: '1', url: `wss://mainnet.infura.io/ws/v3/${infuraProjectId}` },
-  { name: 'ropsten', id: '3', url: `wss://ropsten.infura.io/ws/v3/${infuraProjectId}` },
-  { name: 'kovan', id: '42', url: `wss://kovan.infura.io/ws/v3/${infuraProjectId}` },
-  { name: 'rinkeby', id: '4', url: `wss://rinkeby.infura.io/ws/v3/${infuraProjectId}` },
-  { name: 'goerli', id: '5', url: `wss://goerli.infura.io/ws/v3/${infuraProjectId}` },
+  { name: 'mainnet', id: '1', url: `wss://mainnet.infura.io/ws/v3/${apiKey}` },
+  { name: 'sepolia', id: '11155111', url: `wss://sepolia.infura.io/ws/v3/${apiKey}` },
+  { name: 'polygon', id: '137', url: `wss://polygon-mainnet.infura.io/ws/v3/${apiKey}` },
+  { name: 'polygon-amoy', id: '80002', url: `wss://polygon-amoy.infura.io/ws/v3/${apiKey}` },
+  { name: 'arbitrum', id: '42161', url: `wss://arbitrum-mainnet.infura.io/ws/v3/${apiKey}` },
+  { name: 'optimism', id: '10', url: `wss://optimism-mainnet.infura.io/ws/v3/${apiKey}` },
   { name: 'xdai', id: '100', url: 'wss://rpc.xdaichain.com/wss' },
 ];
 
@@ -100,5 +102,6 @@ module.exports = {
   ],
   api_keys: {
     etherscan: etherscanApiKey,
+    polygonscan: process.env.POLYGONSCAN_API_KEY || ''
   },
 }
