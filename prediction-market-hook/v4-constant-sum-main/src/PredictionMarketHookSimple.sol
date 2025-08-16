@@ -10,6 +10,7 @@ import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
 import {BeforeSwapDelta, toBeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
 import {SafeCast} from "v4-core/src/libraries/SafeCast.sol";
+import {ModifyLiquidityParams, SwapParams} from "v4-core/src/types/PoolOperation.sol";
 import {IERC20} from "v4-core/lib/forge-std/src/interfaces/IERC20.sol";
 
 contract PredictionMarketHookSimple is IHooks {
@@ -72,7 +73,7 @@ contract PredictionMarketHookSimple is IHooks {
     function beforeSwap(
         address,
         PoolKey calldata key,
-        IPoolManager.SwapParams calldata params,
+        SwapParams calldata params,
         bytes calldata
     ) external onlyPoolManager returns (bytes4, BeforeSwapDelta, uint24) {
         PoolId poolId = key.toId();
@@ -112,7 +113,7 @@ contract PredictionMarketHookSimple is IHooks {
     function afterSwap(
         address,
         PoolKey calldata,
-        IPoolManager.SwapParams calldata,
+        SwapParams calldata,
         BalanceDelta,
         bytes calldata
     ) external pure returns (bytes4, int128) {
@@ -122,7 +123,7 @@ contract PredictionMarketHookSimple is IHooks {
     function beforeAddLiquidity(
         address,
         PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata,
+        ModifyLiquidityParams calldata,
         bytes calldata
     ) external pure returns (bytes4) {
         revert("No v4 Liquidity allowed");
@@ -131,7 +132,7 @@ contract PredictionMarketHookSimple is IHooks {
     function afterAddLiquidity(
         address,
         PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata,
+        ModifyLiquidityParams calldata,
         BalanceDelta,
         BalanceDelta,
         bytes calldata
@@ -142,7 +143,7 @@ contract PredictionMarketHookSimple is IHooks {
     function beforeRemoveLiquidity(
         address,
         PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata,
+        ModifyLiquidityParams calldata,
         bytes calldata
     ) external pure returns (bytes4) {
         return IHooks.beforeRemoveLiquidity.selector;
@@ -151,7 +152,7 @@ contract PredictionMarketHookSimple is IHooks {
     function afterRemoveLiquidity(
         address,
         PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata,
+        ModifyLiquidityParams calldata,
         BalanceDelta,
         BalanceDelta,
         bytes calldata

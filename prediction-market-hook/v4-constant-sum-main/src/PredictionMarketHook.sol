@@ -14,6 +14,7 @@ import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
 import {BeforeSwapDelta, toBeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
 import {SafeCast} from "v4-core/src/libraries/SafeCast.sol";
+import {ModifyLiquidityParams, SwapParams} from "v4-core/src/types/PoolOperation.sol";
 
 /// @title PredictionMarketHook
 /// @author Nora AI
@@ -79,7 +80,7 @@ contract PredictionMarketHook is BaseHook, SafeCallback {
     /// @notice This function is called before every swap and implements the core CSAMM logic.
     /// @dev It overrides the pool's AMM by calculating the swap amounts itself,
     /// updating its internal reserves, and instructing the PoolManager to mint/burn tokens to/from the hook.
-    function _beforeSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata params, bytes calldata)
+    function _beforeSwap(address, PoolKey calldata key, SwapParams calldata params, bytes calldata)
         internal
         override
         returns (bytes4, BeforeSwapDelta, uint24)
@@ -143,7 +144,7 @@ contract PredictionMarketHook is BaseHook, SafeCallback {
 
     /// @notice This function intercepts and blocks anyone from adding liquidity through the standard PoolManager.
     /// @dev It reverts to enforce the use of the custom `addInitialLiquidity` function.
-    function _beforeAddLiquidity(address, PoolKey calldata, IPoolManager.ModifyLiquidityParams calldata, bytes calldata)
+    function _beforeAddLiquidity(address, PoolKey calldata, ModifyLiquidityParams calldata, bytes calldata)
         internal
         pure
         override

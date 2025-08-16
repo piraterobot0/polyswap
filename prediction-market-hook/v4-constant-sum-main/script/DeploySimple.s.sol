@@ -6,7 +6,7 @@ import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PredictionMarketHookSimple} from "../src/PredictionMarketHookSimple.sol";
 
 contract DeploySimple is Script {
-    address constant POOLMANAGER = 0x67366782805870060151383f4bbff9dab53e5cd6; // Polygon V4 PoolManager
+    address constant POOLMANAGER = 0x67366782805870060151383F4BbFF9daB53e5cD6; // Polygon V4 PoolManager
     
     function run() public {
         vm.startBroadcast();

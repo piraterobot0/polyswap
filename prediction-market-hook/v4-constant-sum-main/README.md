@@ -31,32 +31,39 @@ A critical bug was discovered and fixed in the `_beforeSwap` function of the `Pr
 
 The `returnDelta` in the `_beforeSwap` hook was calculated incorrectly. This value tells the Uniswap v4 PoolManager how to adjust a swapper's token balances. The bug caused the swapper's balances to be adjusted in the wrong direction, effectively reversing the swap.
 
-### Impact
+### Impact & Output Interpretation
 
 This bug would have made swaps fail, allowing users to drain the contract of one token and breaking the prediction market's functionality.
 
-### The Fix
+#### **What the Buggy Code Did (Incorrect Output)**
 
-The logic was corrected to use `params.zeroForOne` to determine the swap direction. The `returnDelta` now correctly debits the token being sold and credits the token being bought.
+Let's say a user wants to swap 100 of `TokenA` (currency0) for 100 of `TokenB` (currency1).
 
-**Before (Buggy Code):**
+**Buggy Code Snippet:**
 ```solidity
-int128 tokenAmount = amount.toInt128();
+int128 tokenAmount = amount.toInt128(); // amount is 100
 BeforeSwapDelta returnDelta =
     isExactInput ? toBeforeSwapDelta(tokenAmount, -tokenAmount) : toBeforeSwapDelta(-tokenAmount, tokenAmount);
 ```
 
-**After (Fixed Code):**
+*   **Expected `returnDelta`**: `(-100, 100)` — Decrease the user's `TokenA` balance by 100 and increase their `TokenB` balance by 100.
+*   **Actual `returnDelta`**: `(100, -100)` — The code would incorrectly instruct the PoolManager to **increase** the user's `TokenA` balance and **decrease** their `TokenB` balance. The user would essentially get their original tokens back while the hook's internal accounting would be incorrect, leading to a vulnerability.
+
+#### **What the Corrected Code Does (Correct Output)**
+
+The fix ensures the `returnDelta` correctly reflects the debits and credits from the user's perspective.
+
+**Corrected Code Snippet:**
 ```solidity
 BeforeSwapDelta returnDelta;
-if (params.zeroForOne) {
-    // Swapper gives currency0, receives currency1.
+if (params.zeroForOne) { // Swapping TokenA (currency0) for TokenB (currency1)
     returnDelta = toBeforeSwapDelta(-amount.toInt128(), amount.toInt128());
-} else {
-    // Swapper gives currency1, receives currency0.
+} else { // Swapping TokenB for TokenA
     returnDelta = toBeforeSwapDelta(amount.toInt128(), -amount.toInt128());
 }
 ```
+
+*   **Correct `returnDelta`**: `(-100, 100)` — The code now correctly instructs the PoolManager to decrease the user's `TokenA` balance by 100 and increase their `TokenB` balance by 100. The swap executes as intended.
 
 ---
 
