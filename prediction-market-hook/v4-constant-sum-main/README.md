@@ -1,11 +1,19 @@
-# v4-constant-sum
-### **Constant-sum swap on Uniswap v4 🦄**
+# Prediction Market Hook for Uniswap V4
 
-> **This repo is not production ready, and only serves as an example for custom curves on v4**
+### **Constant-sum AMM for Binary Prediction Markets**
 
-With [recent changes](https://github.com/Uniswap/v4-core/pull/404) to v4, Hooks can swap on custom curves!
+> ⚠️ **SECURITY WARNING: This code is not production ready and contains known vulnerabilities. For educational purposes only.**
 
-`v4-constant-sum` implements constant-sum swaps (*x + y = k*), allowing for an exact 1:1 swap everytime
+A Uniswap V4 hook implementation of constant-sum swaps (*x + y = k*) optimized for binary prediction markets (YES/NO tokens).
+
+## 🚨 Critical Security Notice
+
+**DO NOT USE IN PRODUCTION** - Critical vulnerabilities identified. See [SECURITY_AUDIT.md](./SECURITY_AUDIT.md).
+
+## Deployed Contracts (Polygon - TEST ONLY)
+
+- **FlexiblePredictionHook**: `0x4a8AE4911c363f2669215fb5b330132EA41a532c`
+- Token Addresses: YES=`0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1`, NO=`0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5`
 
 ---
 

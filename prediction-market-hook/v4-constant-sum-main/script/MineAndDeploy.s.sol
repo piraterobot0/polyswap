@@ -8,12 +8,13 @@ import {PredictionMarketHookSimple} from "../src/PredictionMarketHookSimple.sol"
 import {HookMiner} from "../test/utils/HookMiner.sol";
 
 contract MineAndDeploy is Script {
-    address constant POOLMANAGER = 0x67366782805870060151383F4BbFF9daB53e5cD6; // Polygon V4 PoolManager
-    
     function run() public {
+        // Load configuration from environment variables
+        address poolManager = vm.envOr("POOLMANAGER", address(0x67366782805870060151383F4BbFF9daB53e5cD6));
+        
         vm.startBroadcast();
         
-        IPoolManager manager = IPoolManager(POOLMANAGER);
+        IPoolManager manager = IPoolManager(poolManager);
         
         // Calculate the flags we need
         uint160 flags = uint160(
@@ -29,8 +30,13 @@ contract MineAndDeploy is Script {
         bytes memory creationCode = type(PredictionMarketHookSimple).creationCode;
         bytes memory constructorArgs = abi.encode(manager);
         
+        // Get the actual deployer address from environment variable
+        uint256 privateKey = vm.envUint("PRIVATE_KEY");
+        address deployer = vm.addr(privateKey);
+        console.log("Deployer address:", deployer);
+        
         (address hookAddress, bytes32 salt) = HookMiner.find(
-            address(this), // deployer
+            deployer, // actual deployer address
             flags,
             creationCode,
             constructorArgs

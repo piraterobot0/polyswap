@@ -10,29 +10,25 @@ import {Currency} from "v4-core/src/types/Currency.sol";
 import {PredictionMarketHook} from "../src/PredictionMarketHook.sol";
 
 contract AddLiquidity_1Each is Script {
-    // Token addresses from Polygon mainnet
-    address constant YES_TOKEN = 0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1; // wPOSI-YES
-    address constant NO_TOKEN = 0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5;  // wPOSI-NO
-    
-    // Uniswap V4 on Polygon
-    address constant POOL_MANAGER = 0x67366782805870060151383f4bbff9dab53e5cd6; // PoolManager on Polygon
-    
-    // TODO: Deploy and update this address
-    address constant HOOK_ADDRESS = address(0); // Your deployed hook address (needs deployment first)
-    
     function run() public {
+        // Load configuration from environment variables
+        address yesToken = vm.envOr("YES_TOKEN", address(0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1));
+        address noToken = vm.envOr("NO_TOKEN", address(0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5));
+        address poolManager = vm.envOr("POOLMANAGER", address(0x67366782805870060151383f4bbff9dab53e5cd6));
+        address hookAddress = vm.envAddress("HOOK_ADDRESS"); // Required - must set in .env
+        
         vm.startBroadcast();
         
-        PredictionMarketHook hook = PredictionMarketHook(HOOK_ADDRESS);
-        IPoolManager manager = IPoolManager(POOL_MANAGER);
+        PredictionMarketHook hook = PredictionMarketHook(hookAddress);
+        IPoolManager manager = IPoolManager(poolManager);
         
         // Setup currencies
-        Currency yesToken = Currency.wrap(YES_TOKEN);
-        Currency noToken = Currency.wrap(NO_TOKEN);
+        Currency yesTokenCurrency = Currency.wrap(yesToken);
+        Currency noTokenCurrency = Currency.wrap(noToken);
         
         // Ensure correct ordering
-        (Currency currency0, Currency currency1) = yesToken < noToken ? 
-            (yesToken, noToken) : (noToken, yesToken);
+        (Currency currency0, Currency currency1) = yesTokenCurrency < noTokenCurrency ? 
+            (yesTokenCurrency, noTokenCurrency) : (noTokenCurrency, yesTokenCurrency);
         
         // Create pool key
         PoolKey memory key = PoolKey({
@@ -56,8 +52,8 @@ contract AddLiquidity_1Each is Script {
         uint256 totalAmount = 2e18; // 2 tokens total
         
         // Approve both tokens
-        IERC20(YES_TOKEN).approve(address(hook), 1e18);
-        IERC20(NO_TOKEN).approve(address(hook), 1e18);
+        IERC20(yesToken).approve(address(hook), 1e18);
+        IERC20(noToken).approve(address(hook), 1e18);
         
         console.log("Adding liquidity:");
         console.log("Providing: 1 YES token + 1 NO token");

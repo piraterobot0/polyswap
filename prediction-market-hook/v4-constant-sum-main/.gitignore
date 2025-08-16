@@ -7,12 +7,21 @@ out/
 /broadcast/*/31337/
 /broadcast/*/5/
 /broadcast/**/dry-run/
+# Also ignore mainnet broadcasts with sensitive data
+/broadcast/*/137/
+/cache/
 
 # Docs
 docs/
 
 # Dotenv file
 .env
+.env.*
 
 # Node modules
 node_modules/
+
+# Private key files
+*.pem
+*.key
+*private*key*

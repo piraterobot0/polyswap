@@ -5,6 +5,14 @@ A Uniswap V4 hook-based AMM and swapping interface for prediction market positio
 ## 🚀 Deployed Contracts
 
 ### Polygon Mainnet
+
+#### Uniswap V4 Hook (Prediction Market AMM)
+- **PredictionMarketHook**: [`0x349810b251D655169fAd188CAC0F70c534130327`](https://polygonscan.com/address/0x349810b251D655169fAd188CAC0F70c534130327)
+  - Constant-sum AMM for YES/NO trading
+  - Initial price ratio: 80% YES / 20% NO
+  - Note: Deployed without address validation for MVP
+
+#### Token Wrapper Factory
 - **Wrapped1155Factory**: [`0xc14f5d2b9d6945ef1ba93f8db20294b90fa5b5b1`](https://polygonscan.com/address/0xc14f5d2b9d6945ef1ba93f8db20294b90fa5b5b1#code) ✅ Verified
 - **ERC20 Implementation**: [`0xf67438Cb870c911319cd4da95d064A6B4772081C`](https://polygonscan.com/address/0xf67438Cb870c911319cd4da95d064A6B4772081C)
 - **Deployment TX**: [`0xd4d7688...`](https://polygonscan.com/tx/0xd4d7688960b047fa215414412f50eddff708ca3a55071ffb958c1d6ef93c8123)

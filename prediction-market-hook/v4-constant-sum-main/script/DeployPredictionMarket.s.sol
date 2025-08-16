@@ -12,14 +12,15 @@ import {PredictionMarketHook} from "../src/PredictionMarketHook.sol";
 import {Constants} from "./base/Constants.sol";
 
 contract DeployPredictionMarket is Script, Constants {
-    address constant YES_TOKEN = 0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1; // wPOSI-YES on Polygon
-    address constant NO_TOKEN = 0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5;  // wPOSI-NO on Polygon
-    address constant POOLMANAGER = 0x67366782805870060151383f4bbff9dab53e5cd6; // Polygon V4 PoolManager
-    
     function run() public {
+        // Load configuration from environment variables
+        address yesToken = vm.envOr("YES_TOKEN", address(0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1));
+        address noToken = vm.envOr("NO_TOKEN", address(0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5));
+        address poolManager = vm.envOr("POOLMANAGER", address(0x67366782805870060151383f4bbff9dab53e5cd6));
+        
         vm.startBroadcast();
         
-        IPoolManager manager = IPoolManager(POOLMANAGER); // Using Polygon address
+        IPoolManager manager = IPoolManager(poolManager); // Using address from env
         
         address flags = address(
             uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_ADD_LIQUIDITY_FLAG)
@@ -30,11 +31,11 @@ contract DeployPredictionMarket is Script, Constants {
         
         PredictionMarketHook hook = new PredictionMarketHook(manager);
         
-        Currency yesToken = Currency.wrap(YES_TOKEN);
-        Currency noToken = Currency.wrap(NO_TOKEN);
+        Currency yesTokenCurrency = Currency.wrap(yesToken);
+        Currency noTokenCurrency = Currency.wrap(noToken);
         
-        (Currency currency0, Currency currency1) = yesToken < noToken ? 
-            (yesToken, noToken) : (noToken, yesToken);
+        (Currency currency0, Currency currency1) = yesTokenCurrency < noTokenCurrency ? 
+            (yesTokenCurrency, noTokenCurrency) : (noTokenCurrency, yesTokenCurrency);
         
         PoolKey memory key = PoolKey({
             currency0: currency0,
@@ -48,8 +49,8 @@ contract DeployPredictionMarket is Script, Constants {
         
         uint256 TOTAL_LIQUIDITY = 10000e18;
         
-        IERC20(YES_TOKEN).approve(address(hook), type(uint256).max);
-        IERC20(NO_TOKEN).approve(address(hook), type(uint256).max);
+        IERC20(yesToken).approve(address(hook), type(uint256).max);
+        IERC20(noToken).approve(address(hook), type(uint256).max);
         
         hook.addInitialLiquidity(key, TOTAL_LIQUIDITY);
         
