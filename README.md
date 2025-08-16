@@ -9,6 +9,17 @@ A smart contract system for wrapping ERC-1155 tokens into ERC-20 tokens on Polyg
 - **ERC20 Implementation**: [`0xf67438Cb870c911319cd4da95d064A6B4772081C`](https://polygonscan.com/address/0xf67438Cb870c911319cd4da95d064A6B4772081C)
 - **Deployment TX**: [`0xd4d7688...`](https://polygonscan.com/tx/0xd4d7688960b047fa215414412f50eddff708ca3a55071ffb958c1d6ef93c8123)
 
+### Wrapped Prediction Market Tokens
+**"Will Google have the best AI model by September 2025?"**
+- **YES Token (wPOSI-YES)**: [`0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1`](https://polygonscan.com/address/0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1)
+  - Symbol: wPOSI-YES
+  - Decimals: 18
+  - Original ERC-1155 ID: 65880048952541620153230365826580171049439578129923156747663728476967119230732
+- **NO Token (wPOSI-NO)**: [`0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5`](https://polygonscan.com/address/0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5)
+  - Symbol: wPOSI-NO
+  - Decimals: 18
+  - Original ERC-1155 ID: 106277356443369138797049499065953438334187241175412976556484145976288075138631
+
 ## 📋 Overview
 
 This project provides a factory contract that:
@@ -110,13 +121,12 @@ For user interfaces, we recommend:
 3. **Show as**: "2.000001 M-wPOSI" (millions of base units)
 4. Or use custom display logic based on your use case
 
-### Current Wrapped Tokens
-- **Wrapped Token**: `0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5`
-- **Symbol**: wPOSI
-- **Decimals**: 18
-- **Raw Balance**: 2,000,001 wei
-- **Display Balance**: 0.000000000002000001 wPOSI
-- **Suggested Display**: 2.000001 (scaled units)
+### Quick Token Reference
+Add these tokens to MetaMask on Polygon Network:
+```
+YES Token: 0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1
+NO Token:  0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5
+```
 
 ## 🧪 Testing
 
