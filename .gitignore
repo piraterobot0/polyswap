@@ -1,0 +1,17 @@
+# Node.js / Truffle
+node_modules/
+build/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# OS-specific
+.DS_Store
+Thumbs.db
