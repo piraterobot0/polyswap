@@ -32,14 +32,16 @@ const UniswapSwap = () => {
     YES: {
       address: UNISWAP_V3_CONFIG.YES_TOKEN,
       symbol: "wPOSI-YES",
-      decimals: 18,
-      color: "green"
+      decimals: 6,  // Actual decimals for proper share display
+      color: "green",
+      isScaled: true  // Flag to indicate this needs special scaling
     },
     NO: {
       address: UNISWAP_V3_CONFIG.NO_TOKEN,
       symbol: "wPOSI-NO",
-      decimals: 18,
-      color: "red"
+      decimals: 6,  // Actual decimals for proper share display
+      color: "red",
+      isScaled: true  // Flag to indicate this needs special scaling
     },
     USDC: {
       address: UNISWAP_V3_CONFIG.USDC,
@@ -80,8 +82,17 @@ const UniswapSwap = () => {
     watch: true,
   });
 
-  // Parse amount for quote
-  const amountIn = amount ? parseUnits(amount, tokens[fromToken].decimals) : 0n;
+  // Parse amount for quote - handle scaled tokens differently
+  const parseAmountForToken = (amt, token) => {
+    if (!amt || parseFloat(amt) === 0) return 0n;
+    if (tokens[token].isScaled) {
+      // For YES/NO tokens, convert shares to wei (1 share = 1e-12 tokens = 1 wei)
+      return BigInt(Math.floor(parseFloat(amt) * 1e6));
+    }
+    return parseUnits(amt, tokens[token].decimals);
+  };
+  
+  const amountIn = amount ? parseAmountForToken(amount, fromToken) : 0n;
   
   // Get swap quote
   const { quote } = useSwapQuote(
@@ -90,10 +101,11 @@ const UniswapSwap = () => {
     amountIn
   );
 
-  // Format balance for display
+  // Format balance for display - shows actual shares
   const formatBalance = (balance) => {
     if (!balance) return '0.00';
     const rawBalance = BigInt(balance);
+    // Convert wei to shares (1 wei = 1e-12 shares, so multiply by 1e12 then divide by 1e18)
     const scaledBalance = rawBalance * BigInt(10 ** 12);
     return formatUnits(scaledBalance, 18);
   };
@@ -124,6 +136,11 @@ const UniswapSwap = () => {
   // Calculate output with slippage
   const calculateOutput = () => {
     if (!quote || !quote.amountOut) return '0.00';
+    // For scaled tokens (YES/NO), convert wei to shares for display
+    if (tokens[toToken].isScaled) {
+      const scaledAmount = BigInt(quote.amountOut) * BigInt(10 ** 12);
+      return formatUnits(scaledAmount, 18);
+    }
     return formatUnits(quote.amountOut, tokens[toToken].decimals);
   };
 
@@ -147,11 +164,12 @@ const UniswapSwap = () => {
     if (!amount || parseFloat(amount) === 0 || !quote) return;
 
     const minOutput = calculateMinimumOutput();
+    const actualAmountIn = parseAmountForToken(amount, fromToken);
     
     await executeSwap(
       tokens[fromToken].address,
       tokens[toToken].address,
-      amountIn,
+      actualAmountIn,
       minOutput
     );
   };
@@ -313,7 +331,18 @@ const UniswapSwap = () => {
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-400">Rate</span>
               <span className="font-medium text-gray-200">
-                1 {fromToken} = {(Number(quote.amountOut) / Number(amountIn)).toFixed(4)} {toToken}
+                1 {fromToken} = {(() => {
+                  const rate = Number(quote.amountOut) / Number(amountIn);
+                  // Adjust rate display for scaled tokens
+                  if (tokens[fromToken].isScaled && !tokens[toToken].isScaled) {
+                    return (rate / 1e6).toFixed(6);
+                  } else if (!tokens[fromToken].isScaled && tokens[toToken].isScaled) {
+                    return (rate * 1e6).toFixed(2);
+                  } else if (tokens[fromToken].isScaled && tokens[toToken].isScaled) {
+                    return rate.toFixed(4);
+                  }
+                  return rate.toFixed(4);
+                })()} {toToken}
               </span>
             </div>
             <div className="flex justify-between text-sm mb-1">
@@ -331,7 +360,9 @@ const UniswapSwap = () => {
             <div className="flex justify-between text-sm">
               <span className="text-gray-400">Minimum Received</span>
               <span className="font-medium text-gray-200">
-                {formatUnits(calculateMinimumOutput(), tokens[toToken].decimals)} {toToken}
+                {tokens[toToken].isScaled 
+                  ? formatUnits(calculateMinimumOutput() * BigInt(10 ** 12), 18)
+                  : formatUnits(calculateMinimumOutput(), tokens[toToken].decimals)} {toToken}
               </span>
             </div>
           </div>
