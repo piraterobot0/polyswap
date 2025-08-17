@@ -1,7 +1,0 @@
-{
-  "buildCommand": "cd gui && npm install && npm run build",
-  "outputDirectory": "gui/dist",
-  "framework": "vite",
-  "installCommand": "cd gui && npm install",
-  "devCommand": "cd gui && npm run dev"
-}
