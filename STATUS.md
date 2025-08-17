@@ -1,9 +1,9 @@
 # PolySwap Prediction Market - Project Status
 
 ## Overview
-PolySwap is a prediction market platform built on Polygon using Uniswap V4 hooks with a constant sum AMM (X+Y=K) mechanism.
+PolySwap is a prediction market platform built on Polygon using Uniswap V3 concentrated liquidity pools for efficient trading.
 
-## Current Status: Pool Initialization Blocked
+## Current Status: Migrating to V3 Architecture
 
 ### ✅ Completed Tasks
 

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ConnectButton from './components/ConnectButton';
 import PredictionMarket from './components/PredictionMarket';
 import SwapV2 from './components/SwapV2';
+import UniswapSwap from './components/UniswapSwap';
 import SimpleLogo from './components/SimpleLogo';
 import LogoPage from './components/LogoPage';
 import LiquidityCurve from './components/LiquidityCurve';
@@ -36,6 +37,16 @@ function App() {
                     Positions
                   </button>
                   <button
+                    onClick={() => setActiveTab('uniswap')}
+                    className={`px-4 py-2 rounded-md font-medium transition-all ${
+                      activeTab === 'uniswap'
+                        ? 'bg-zinc-800 text-orange-500 shadow-sm'
+                        : 'text-gray-400 hover:text-orange-400'
+                    }`}
+                  >
+                    Uniswap V3
+                  </button>
+                  <button
                     onClick={() => setActiveTab('swap')}
                     className={`px-4 py-2 rounded-md font-medium transition-all ${
                       activeTab === 'swap'
@@ -43,7 +54,7 @@ function App() {
                         : 'text-gray-400 hover:text-orange-400'
                     }`}
                   >
-                    Swap
+                    P2P Swap
                   </button>
                   <button
                     onClick={() => setActiveTab('logo')}
@@ -76,6 +87,7 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {isConnected ? (
           activeTab === 'positions' ? <PredictionMarket /> : 
+          activeTab === 'uniswap' ? <UniswapSwap /> :
           activeTab === 'swap' ? <SwapV2 /> : 
           activeTab === 'logo' ? <LogoPage /> :
           <LiquidityCurve />

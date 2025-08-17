@@ -2,9 +2,11 @@
 export const ERC1155_ADDRESS = '0x4D97DCd97eC945f40cF65F87097ACe5EA0476045'; // CTF Exchange
 export const WRAPPER_FACTORY_ADDRESS = '0xC14F5D2B9D6945ef1Ba93F8DB20294B90FA5B5B1';
 
-// Uniswap V4 Hook and PoolManager
-export const HOOK_ADDRESS = '0x4a8AE4911c363f2669215fb5b330132EA41a532c'; // FlexiblePredictionHook
-export const POOL_MANAGER_ADDRESS = '0x67366782805870060151383F4BbFF9daB53e5cD6'; // V4 PoolManager
+// Uniswap V3 Contracts on Polygon
+export const UNISWAP_V3_FACTORY = '0x1F98431c8aD98523631AE4a59f267346ea31F984';
+export const UNISWAP_V3_ROUTER = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
+export const UNISWAP_V3_QUOTER = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6';
+export const UNISWAP_V3_NFT_POSITION_MANAGER = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88';
 
 // Token IDs for the prediction market
 export const YES_TOKEN_ID = '65880048952541620153230365826580171049439578129923156747663728476967119230732';
@@ -21,11 +23,16 @@ export const POL_TOKEN = {
   decimals: 18
 };
 
-// Pool Key for the prediction market
-export const POOL_KEY = {
-  currency0: YES_TOKEN_ADDRESS,
-  currency1: NO_TOKEN_ADDRESS,
+// USDC on Polygon (commonly used for trading pairs)
+export const USDC_TOKEN = {
+  address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+  symbol: 'USDC',
+  decimals: 6
+};
+
+// V3 Pool configuration for prediction market
+export const V3_POOL_CONFIG = {
+  token0: YES_TOKEN_ADDRESS,
+  token1: NO_TOKEN_ADDRESS,
   fee: 3000, // 0.3%
-  tickSpacing: 60,
-  hooks: HOOK_ADDRESS
 };

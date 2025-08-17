@@ -1,16 +1,15 @@
 # PolySwap - Prediction Market Trading Platform
 
-A Uniswap V4 hook-based AMM and swapping interface for prediction market positions, with integrated ERC-1155 to ERC-20 wrapping for enhanced liquidity and DeFi compatibility.
+A Uniswap V3-based AMM and swapping interface for prediction market positions, with integrated ERC-1155 to ERC-20 wrapping for enhanced liquidity and DeFi compatibility.
 
 ## 🚀 Deployed Contracts
 
 ### Polygon Mainnet
 
-#### Uniswap V4 Hook (Prediction Market AMM)
-- **PredictionMarketHook**: [`0x349810b251D655169fAd188CAC0F70c534130327`](https://polygonscan.com/address/0x349810b251D655169fAd188CAC0F70c534130327)
-  - Constant-sum AMM for YES/NO trading
-  - Initial price ratio: 80% YES / 20% NO
-  - Note: Deployed without address validation for MVP
+#### Uniswap V3 Contracts (Official)
+- **V3 Factory**: [`0x1F98431c8aD98523631AE4a59f267346ea31F984`](https://polygonscan.com/address/0x1F98431c8aD98523631AE4a59f267346ea31F984)
+- **V3 Router**: [`0xE592427A0AEce92De3Edee1F18E0157C05861564`](https://polygonscan.com/address/0xE592427A0AEce92De3Edee1F18E0157C05861564)
+- **Position Manager**: [`0xC36442b4a4522E871399CD717aBDD847Ab11FE88`](https://polygonscan.com/address/0xC36442b4a4522E871399CD717aBDD847Ab11FE88)
 
 #### Token Wrapper Factory
 - **Wrapped1155Factory**: [`0xc14f5d2b9d6945ef1ba93f8db20294b90fa5b5b1`](https://polygonscan.com/address/0xc14f5d2b9d6945ef1ba93f8db20294b90fa5b5b1#code) ✅ Verified
@@ -33,7 +32,7 @@ A Uniswap V4 hook-based AMM and swapping interface for prediction market positio
 PolySwap is a complete prediction market trading solution that:
 
 ### Core Features
-1. **Uniswap V4 Hook AMM** - Custom constant-sum market maker for prediction markets
+1. **Uniswap V3 Liquidity Pools** - Concentrated liquidity for efficient prediction market trading
 2. **Position Trading Interface** - Swap between YES/NO positions with real-time pricing
 3. **Portfolio Tracking** - View and manage prediction market positions
 4. **ERC-1155 to ERC-20 Bridge** - Wrap Polymarket positions for DeFi compatibility
@@ -46,10 +45,10 @@ PolySwap is a complete prediction market trading solution that:
 
 ## 🔧 Architecture
 
-### 1. Prediction Market Trading (Uniswap V4 Hook)
-- **Constant Sum AMM** - Ensures YES + NO = 1 for proper probability pricing
-- **Hook-based Architecture** - Leverages V4's customizable liquidity pools
-- **Automatic Rebalancing** - Maintains market efficiency
+### 1. Prediction Market Trading (Uniswap V3)
+- **Concentrated Liquidity** - Efficient capital usage for prediction markets
+- **Battle-tested Infrastructure** - Leverages proven V3 contracts on Polygon
+- **Deep Liquidity** - Access to existing V3 ecosystem and liquidity
 
 ### 2. Token Wrapping System
 - **ERC-1155 → ERC-20** - Converts Polymarket positions to fungible tokens
@@ -64,8 +63,7 @@ PolySwap is a complete prediction market trading solution that:
 ## 🛠 Technical Stack
 
 ### Smart Contracts
-- **Uniswap V4 Hooks** - Custom AMM logic for prediction markets
-- **Solidity 0.8.26** - V4 hook contracts
+- **Uniswap V3 Pools** - Proven AMM for prediction market trading
 - **Solidity 0.6.12** - ERC-1155 wrapper factory
 - **CREATE2 Deployment** - Deterministic contract addresses
 - **OpenZeppelin** - Battle-tested token standards
@@ -87,10 +85,8 @@ polyswap/
 │   │   │   └── SwapV2.jsx           # Trading interface
 │   │   └── config/
 │   └── vercel.json             # Deployment config
-├── prediction-market-hook/      # Uniswap V4 AMM
-│   └── v4-constant-sum-main/
-│       ├── src/                # Hook contracts
-│       └── test/               # Hook tests
+├── storage/                    # Archived V4 implementation
+│   └── v4-implementation/      # Previous V4 hook attempts
 ├── 1155_converter/             # Token wrapper
 │   └── contracts/              # Factory contracts
 ├── transfer/                   # Gnosis Safe tools
