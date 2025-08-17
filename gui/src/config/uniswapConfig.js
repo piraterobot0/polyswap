@@ -20,8 +20,8 @@ export const UNISWAP_V3_CONFIG = {
   // POL (Wrapped MATIC) on Polygon
   WPOL: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // Wrapped MATIC/POL
   
-  // USDC for stable trading pairs
-  USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+  // USDC for stable trading pairs (Native USDC on Polygon)
+  USDC: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
   
   // Pool address (can be calculated or hardcoded after checking transactions)
   POOL_ADDRESS: null, // Will calculate from factory
