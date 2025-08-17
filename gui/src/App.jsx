@@ -1,6 +1,6 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useState } from 'react';
+import ConnectButton from './components/ConnectButton';
 import PredictionMarket from './components/PredictionMarket';
 import SwapV2 from './components/SwapV2';
 import SimpleLogo from './components/SimpleLogo';

@@ -6,10 +6,14 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
+import {PoolIdLibrary} from "v4-core/src/types/PoolId.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
 import {PredictionMarketHook} from "../src/PredictionMarketHook.sol";
 
 contract AddLiquidity_1Each is Script {
+    using PoolIdLibrary for PoolKey;
+    
+    uint160 constant SQRT_PRICE_1_1 = 79228162514264337593543950336;
     function run() public {
         // Load configuration from environment variables
         address yesToken = vm.envOr("YES_TOKEN", address(0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1));

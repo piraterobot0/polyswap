@@ -1,7 +1,16 @@
+# SECURITY - NEVER COMMIT THESE
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+private_key.txt
+hook_salt.txt
+*_private*
+
 # Node.js / Truffle
 node_modules/
 build/
-.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -17,6 +26,11 @@ env/
 ENV/
 env.bak/
 venv.bak/
+
+# Foundry
+broadcast/
+cache_forge/
+out/
 
 # Project specific
 sc_utils/

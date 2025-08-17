@@ -36,8 +36,15 @@ contract FlexiblePredictionHook is IHooks {
     mapping(PoolId => uint256) public reserve1;  // Second token reserve
     mapping(PoolId => uint256) public initialRatio0; // Initial % for token0 (0-100)
     
+    // LP tracking
+    mapping(PoolId => uint256) public totalShares;  // Total LP shares
+    mapping(PoolId => mapping(address => uint256)) public lpShares;  // LP shares per user
+    mapping(PoolId => mapping(address => uint256)) public lpDeposit0;  // Track token0 deposits
+    mapping(PoolId => mapping(address => uint256)) public lpDeposit1;  // Track token1 deposits
+    
     // Events
-    event LiquidityAdded(PoolId indexed poolId, uint256 amount0, uint256 amount1);
+    event LiquidityAdded(PoolId indexed poolId, address indexed provider, uint256 amount0, uint256 amount1, uint256 shares);
+    event LiquidityRemoved(PoolId indexed poolId, address indexed provider, uint256 amount0, uint256 amount1, uint256 shares);
     event SwapExecuted(PoolId indexed poolId, bool zeroForOne, uint256 amountIn, uint256 amountOut);
 
     modifier onlyPoolManager() {
@@ -230,7 +237,7 @@ contract FlexiblePredictionHook is IHooks {
     /// @param key Pool key
     /// @param amount0 Amount of token0
     /// @param amount1 Amount of token1
-    function addLiquidity(PoolKey calldata key, uint256 amount0, uint256 amount1) external {
+    function addLiquidity(PoolKey calldata key, uint256 amount0, uint256 amount1) external returns (uint256 shares) {
         require(amount0 > 0 || amount1 > 0, "Must provide tokens");
         
         PoolId poolId = key.toId();
@@ -254,17 +261,34 @@ contract FlexiblePredictionHook is IHooks {
             poolManager.mint(address(this), key.currency1.toId(), amount1);
         }
         
+        // Calculate LP shares
+        uint256 liquidityAdded = amount0 + amount1;
+        uint256 currentTotalLiquidity = totalLiquidity[poolId];
+        
+        if (totalShares[poolId] == 0) {
+            // First liquidity provider
+            shares = liquidityAdded;
+        } else {
+            // Proportional shares based on liquidity added
+            shares = (liquidityAdded * totalShares[poolId]) / currentTotalLiquidity;
+        }
+        
         // Update state
         reserve0[poolId] += amount0;
         reserve1[poolId] += amount1;
-        totalLiquidity[poolId] += (amount0 + amount1);
+        totalLiquidity[poolId] += liquidityAdded;
+        totalShares[poolId] += shares;
+        lpShares[poolId][msg.sender] += shares;
+        lpDeposit0[poolId][msg.sender] += amount0;
+        lpDeposit1[poolId][msg.sender] += amount1;
         
-        emit LiquidityAdded(poolId, amount0, amount1);
+        emit LiquidityAdded(poolId, msg.sender, amount0, amount1, shares);
+        return shares;
     }
 
     /// @notice Add initial liquidity with whatever tokens you have
     /// @param key Pool key
-    function addAvailableLiquidity(PoolKey calldata key) external {
+    function addAvailableLiquidity(PoolKey calldata key) external returns (uint256 shares) {
         PoolId poolId = key.toId();
         
         // Get sender's balances
@@ -292,12 +316,87 @@ contract FlexiblePredictionHook is IHooks {
             poolManager.mint(address(this), key.currency1.toId(), balance1);
         }
         
+        // Calculate LP shares
+        uint256 liquidityAdded = balance0 + balance1;
+        uint256 currentTotalLiquidity = totalLiquidity[poolId];
+        
+        if (totalShares[poolId] == 0) {
+            // First liquidity provider
+            shares = liquidityAdded;
+        } else {
+            // Proportional shares based on liquidity added
+            shares = (liquidityAdded * totalShares[poolId]) / currentTotalLiquidity;
+        }
+        
         // Update state
         reserve0[poolId] += balance0;
         reserve1[poolId] += balance1;
-        totalLiquidity[poolId] += (balance0 + balance1);
+        totalLiquidity[poolId] += liquidityAdded;
+        totalShares[poolId] += shares;
+        lpShares[poolId][msg.sender] += shares;
+        lpDeposit0[poolId][msg.sender] += balance0;
+        lpDeposit1[poolId][msg.sender] += balance1;
         
-        emit LiquidityAdded(poolId, balance0, balance1);
+        emit LiquidityAdded(poolId, msg.sender, balance0, balance1, shares);
+        return shares;
+    }
+    
+    /// @notice Remove liquidity
+    /// @param key Pool key
+    /// @param shares Amount of LP shares to burn
+    function removeLiquidity(PoolKey calldata key, uint256 shares) external returns (uint256 amount0, uint256 amount1) {
+        PoolId poolId = key.toId();
+        
+        require(shares > 0, "Must remove some shares");
+        require(lpShares[poolId][msg.sender] >= shares, "Insufficient shares");
+        
+        uint256 totalPoolShares = totalShares[poolId];
+        require(totalPoolShares > 0, "No liquidity in pool");
+        
+        // Calculate proportional amounts to withdraw
+        amount0 = (reserve0[poolId] * shares) / totalPoolShares;
+        amount1 = (reserve1[poolId] * shares) / totalPoolShares;
+        
+        // Update state
+        reserve0[poolId] -= amount0;
+        reserve1[poolId] -= amount1;
+        totalLiquidity[poolId] -= (amount0 + amount1);
+        totalShares[poolId] -= shares;
+        lpShares[poolId][msg.sender] -= shares;
+        
+        // Update deposit tracking proportionally
+        if (lpShares[poolId][msg.sender] == 0) {
+            lpDeposit0[poolId][msg.sender] = 0;
+            lpDeposit1[poolId][msg.sender] = 0;
+        } else {
+            uint256 shareRatio = (shares * SCALE) / (shares + lpShares[poolId][msg.sender]);
+            lpDeposit0[poolId][msg.sender] = (lpDeposit0[poolId][msg.sender] * (SCALE - shareRatio)) / SCALE;
+            lpDeposit1[poolId][msg.sender] = (lpDeposit1[poolId][msg.sender] * (SCALE - shareRatio)) / SCALE;
+        }
+        
+        // Transfer tokens back to user
+        if (amount0 > 0) {
+            poolManager.burn(address(this), key.currency0.toId(), amount0);
+            poolManager.take(key.currency0, msg.sender, amount0);
+        }
+        
+        if (amount1 > 0) {
+            poolManager.burn(address(this), key.currency1.toId(), amount1);
+            poolManager.take(key.currency1, msg.sender, amount1);
+        }
+        
+        emit LiquidityRemoved(poolId, msg.sender, amount0, amount1, shares);
+        return (amount0, amount1);
+    }
+    
+    /// @notice Remove all liquidity
+    /// @param key Pool key
+    function removeAllLiquidity(PoolKey calldata key) external returns (uint256 amount0, uint256 amount1) {
+        PoolId poolId = key.toId();
+        uint256 userShares = lpShares[poolId][msg.sender];
+        require(userShares > 0, "No liquidity to remove");
+        
+        return this.removeLiquidity(key, userShares);
     }
 
     /// @notice Set initial price ratio (call before adding first liquidity)
@@ -347,5 +446,32 @@ contract FlexiblePredictionHook is IHooks {
             price0 = (r0 * 100) / liquidity;
             price1 = (r1 * 100) / liquidity;
         }
+    }
+    
+    /// @notice Get user's LP position
+    function getUserPosition(PoolKey calldata key, address user) external view returns (
+        uint256 shares,
+        uint256 shareOfPool,
+        uint256 deposited0,
+        uint256 deposited1,
+        uint256 claimable0,
+        uint256 claimable1
+    ) {
+        PoolId poolId = key.toId();
+        shares = lpShares[poolId][user];
+        
+        if (totalShares[poolId] > 0) {
+            shareOfPool = (shares * SCALE) / totalShares[poolId];
+            claimable0 = (reserve0[poolId] * shares) / totalShares[poolId];
+            claimable1 = (reserve1[poolId] * shares) / totalShares[poolId];
+        }
+        
+        deposited0 = lpDeposit0[poolId][user];
+        deposited1 = lpDeposit1[poolId][user];
+    }
+    
+    /// @notice Get total shares for a pool
+    function getTotalShares(PoolKey calldata key) external view returns (uint256) {
+        return totalShares[key.toId()];
     }
 }
