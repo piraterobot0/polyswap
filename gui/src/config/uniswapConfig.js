@@ -17,6 +17,12 @@ export const UNISWAP_V3_CONFIG = {
   YES_TOKEN: '0x91BdE82669D279B37a5F4Fe44c0D4b06054577B1',
   NO_TOKEN: '0xcDb79f7f9D387cd034e87abAc34e222F146fc3C5',
   
+  // POL (Wrapped MATIC) on Polygon
+  WPOL: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // Wrapped MATIC/POL
+  
+  // USDC for stable trading pairs
+  USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+  
   // Pool address (can be calculated or hardcoded after checking transactions)
   POOL_ADDRESS: null, // Will calculate from factory
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useBalance } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import { ERC20_ABI } from '../config/contracts';
 import { UNISWAP_V3_CONFIG } from '../config/uniswapConfig';
@@ -12,8 +12,8 @@ import {
 
 const UniswapSwap = () => {
   const { address, isConnected } = useAccount();
-  const [fromToken, setFromToken] = useState('YES');
-  const [toToken, setToToken] = useState('NO');
+  const [fromToken, setFromToken] = useState('POL');
+  const [toToken, setToToken] = useState('YES');
   const [amount, setAmount] = useState('');
   const [slippage, setSlippage] = useState('0.5');
   
@@ -22,6 +22,13 @@ const UniswapSwap = () => {
 
   // Token configuration
   const tokens = {
+    POL: {
+      address: UNISWAP_V3_CONFIG.WPOL,
+      symbol: "POL",
+      decimals: 18,
+      color: "purple",
+      isNative: true
+    },
     YES: {
       address: UNISWAP_V3_CONFIG.YES_TOKEN,
       symbol: "wPOSI-YES",
@@ -33,8 +40,20 @@ const UniswapSwap = () => {
       symbol: "wPOSI-NO",
       decimals: 18,
       color: "red"
+    },
+    USDC: {
+      address: UNISWAP_V3_CONFIG.USDC,
+      symbol: "USDC",
+      decimals: 6,
+      color: "blue"
     }
   };
+
+  // Get native POL balance
+  const { data: polBalance } = useBalance({
+    address: address,
+    watch: true,
+  });
 
   // Get token balances
   const { data: yesBalance } = useReadContract({
@@ -47,6 +66,14 @@ const UniswapSwap = () => {
 
   const { data: noBalance } = useReadContract({
     address: tokens.NO.address,
+    abi: ERC20_ABI,
+    functionName: 'balanceOf',
+    args: [address],
+    watch: true,
+  });
+
+  const { data: usdcBalance } = useReadContract({
+    address: tokens.USDC.address,
     abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: [address],
@@ -73,10 +100,17 @@ const UniswapSwap = () => {
 
   // Get balance for current token
   const getBalance = (token) => {
-    if (token === 'YES') {
-      return yesBalance ? formatBalance(yesBalance) : '0.00';
-    } else {
-      return noBalance ? formatBalance(noBalance) : '0.00';
+    switch(token) {
+      case 'POL':
+        return polBalance ? formatUnits(polBalance.value, 18) : '0.00';
+      case 'YES':
+        return yesBalance ? formatBalance(yesBalance) : '0.00';
+      case 'NO':
+        return noBalance ? formatBalance(noBalance) : '0.00';
+      case 'USDC':
+        return usdcBalance ? formatUnits(usdcBalance, 6) : '0.00';
+      default:
+        return '0.00';
     }
   };
 
@@ -154,25 +188,32 @@ const UniswapSwap = () => {
           </div>
         </div>
 
-        {/* Pool Info */}
-        {poolInfo.poolAddress && (
-          <div className="bg-zinc-800 rounded-lg p-3 mb-4 text-sm">
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-400">Pool Liquidity:</span>
-              <span className="text-gray-200">{poolInfo.liquidity?.toString() || '0'}</span>
+        {/* Trading Pairs Info */}
+        <div className="bg-zinc-800 rounded-lg p-3 mb-4 text-sm">
+          <div className="text-gray-400 mb-2">Available Trading Pairs:</div>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="bg-zinc-900 rounded px-2 py-1 border border-zinc-700">
+              <span className="text-purple-400">POL</span> ↔ <span className="text-green-400">YES</span>
             </div>
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-400">Current Tick:</span>
-              <span className="text-gray-200">{poolInfo.tick?.toString() || '0'}</span>
+            <div className="bg-zinc-900 rounded px-2 py-1 border border-zinc-700">
+              <span className="text-purple-400">POL</span> ↔ <span className="text-red-400">NO</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">YES/NO Price:</span>
-              <span className="text-gray-200">
-                {poolInfo.price0 ? poolInfo.price0.toFixed(4) : '0'}
-              </span>
+            <div className="bg-zinc-900 rounded px-2 py-1 border border-zinc-700">
+              <span className="text-green-400">YES</span> ↔ <span className="text-red-400">NO</span>
+            </div>
+            <div className="bg-zinc-900 rounded px-2 py-1 border border-zinc-700">
+              <span className="text-blue-400">USDC</span> ↔ <span className="text-green-400">YES</span>
             </div>
           </div>
-        )}
+          {poolInfo.poolAddress && (
+            <div className="mt-3 pt-3 border-t border-zinc-700">
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-400">Pool Liquidity:</span>
+                <span className="text-gray-200">{poolInfo.liquidity?.toString() || '0'}</span>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* From Token */}
         <div className="bg-zinc-800 rounded-xl p-4 mb-2">
@@ -183,20 +224,23 @@ const UniswapSwap = () => {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setFromToken(fromToken === 'YES' ? 'NO' : 'YES');
-                setToToken(toToken === 'YES' ? 'NO' : 'YES');
+            <select
+              value={fromToken}
+              onChange={(e) => {
+                const newToken = e.target.value;
+                if (newToken === toToken) {
+                  // Swap if selecting the same token
+                  setToToken(fromToken);
+                }
+                setFromToken(newToken);
               }}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 border ${
-                tokens[fromToken].color === 'green' ? 'border-green-500' : 'border-red-500'
-              } hover:bg-zinc-700 transition-colors`}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 hover:bg-zinc-700 transition-colors text-white font-semibold cursor-pointer outline-none"
             >
-              <div className={`w-6 h-6 rounded-full ${
-                tokens[fromToken].color === 'green' ? 'bg-green-500' : 'bg-red-500'
-              }`} />
-              <span className="font-semibold text-white">{fromToken}</span>
-            </button>
+              <option value="POL">POL</option>
+              <option value="YES">wPOSI-YES</option>
+              <option value="NO">wPOSI-NO</option>
+              <option value="USDC">USDC</option>
+            </select>
             <input
               type="number"
               value={amount}
@@ -236,14 +280,23 @@ const UniswapSwap = () => {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 border ${
-              tokens[toToken].color === 'green' ? 'border-green-500' : 'border-red-500'
-            }`}>
-              <div className={`w-6 h-6 rounded-full ${
-                tokens[toToken].color === 'green' ? 'bg-green-500' : 'bg-red-500'
-              }`} />
-              <span className="font-semibold text-white">{toToken}</span>
-            </div>
+            <select
+              value={toToken}
+              onChange={(e) => {
+                const newToken = e.target.value;
+                if (newToken === fromToken) {
+                  // Swap if selecting the same token
+                  setFromToken(toToken);
+                }
+                setToToken(newToken);
+              }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 hover:bg-zinc-700 transition-colors text-white font-semibold cursor-pointer outline-none"
+            >
+              <option value="POL">POL</option>
+              <option value="YES">wPOSI-YES</option>
+              <option value="NO">wPOSI-NO</option>
+              <option value="USDC">USDC</option>
+            </select>
             <input
               type="text"
               value={calculateOutput()}
